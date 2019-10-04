@@ -2,6 +2,9 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 
+// Variable that will store the total cost of a user's purchase
+var cost;
+
 // Define connection variable that will be used to make connection to bamazon database
 var connection = mysql.createConnection({
     host: "localhost",
@@ -10,8 +13,6 @@ var connection = mysql.createConnection({
     password: "rootroot",
     database: "bamazonDB"
 });
-
-var cost;
 
 // Call mysql connect method to establish connection with bamazon database
 connection.connect(err => {
@@ -35,6 +36,7 @@ function loadProducts() {
     });
 }
 
+// Function that will use inquirer to prompt user with options to make a purchase or exit the app
 function promptToPurchase() {
     inquirer.prompt(
         {
@@ -44,19 +46,24 @@ function promptToPurchase() {
             name: "userInput"
         })
         .then(function(answer) {
+           
             var command = answer.userInput;
-
+            
             switch(command) {
+                // Choosing 'Make a Purchase' option will cause promptForItem to run, which will initiate new prompts
                 case "Make a Purchase":
                     promptForItem();
                 break;
                 
+                // Choosing 'Exit' option will end the connection
                 case "Exit Bamazon":
                     connection.end();
             }
         })
 }
 
+// Function that will prompt user to input the item_id and quantity of the item they would like to purchase
+// The database is then queried and updated accordingly
 function promptForItem() {
     inquirer.prompt([
         {
@@ -70,7 +77,8 @@ function promptForItem() {
             name: "itemNum"
         }])
         .then(function(answer) {
-            
+
+            // Use user's answers to prompts to query database for item stock_quantity and price
             connection.query("SELECT stock_quantity, price FROM products WHERE ?",
             {
                 item_id: answer.itemId
@@ -78,6 +86,8 @@ function promptForItem() {
             function(err, res) {
                 if(err) throw err;
                 
+                // Compare user's desired quantity against available stock in database
+                // If user's request exceeds available stock, log message in console and call initial function to display products database
                 else if(answer.itemNum > res[0].stock_quantity) {
                     console.log("");
                     console.log("-----------------------");
@@ -87,26 +97,30 @@ function promptForItem() {
         
                     loadProducts();
                 }
-                    cost = res[0].price * answer.itemNum;
+                // Calculate cost of user's purchase by multiplying item price by desired quantity
+                cost = res[0].price * answer.itemNum;
+                
+                // Make UPDATE query to database to subtract necessary amount from stock_quantity
+                connection.query("UPDATE products SET ? WHERE ?",
+                [{
+                    stock_quantity: res[0].stock_quantity - answer.itemNum
+                },
+                {
+                    item_id: answer.itemId
+                }],
+                function(err, res) {
+                    if(err) throw err;
                     
-                    connection.query("UPDATE products SET ? WHERE ?",
-                    [{
-                        stock_quantity: res[0].stock_quantity - answer.itemNum
-                    },
-                    {
-                        item_id: answer.itemId
-                    }],
-                    function(err, res) {
-                        if(err) throw err;
-                        
-                        console.log("");
-                        console.log("----------------------------------------------------------------");
-                        console.log(`${res.affectedRows} purchase made! The total cost of your purchase was $${cost}.`);
-                        console.log("----------------------------------------------------------------");
-                        console.log("");
+                    // Log below message with total cost after successfully updating the database
+                    console.log("");
+                    console.log("-------------------------------------------------------------");
+                    console.log(`${res.affectedRows} purchase made! The total cost of your purchase was $${cost}.`);
+                    console.log("-------------------------------------------------------------");
+                    console.log("");
 
-                        loadProducts();
-                    })                
+                    // Call function to display all items in database again
+                    loadProducts();
+                })                
                 
             })
         })
