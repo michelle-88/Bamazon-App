@@ -46,7 +46,7 @@ function promptToPurchase() {
 
             switch(command) {
                 case "Make a Purchase":
-                    promptForId();
+                    promptForItem();
                 break;
                 
                 case "Exit Bamazon":
@@ -55,7 +55,7 @@ function promptToPurchase() {
         })
 }
 
-function promptForId() {
+function promptForItem() {
     inquirer.prompt([
         {
             type: "input",
@@ -85,7 +85,25 @@ function promptForId() {
         
                     loadProducts();
                 }
-                
+
+                    connection.query("UPDATE products SET ? WHERE ?",
+                    [{
+                        stock_quantity: res[0].stock_quantity - answer.itemNum
+                    },
+                    {
+                        item_id: answer.itemId
+                    }],
+                    function(err, res) {
+                        if(err) throw err;
+                        
+                        console.log("");
+                        console.log("-----------------------");
+                        console.log(res);
+                        console.log("-----------------------");
+                        console.log("");
+
+                        loadProducts();
+                    })                
                 
             })
         })
