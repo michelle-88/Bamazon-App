@@ -29,7 +29,64 @@ function loadProducts() {
         console.table(res);
 
         // Call function to prompt user to purchase an item
-        promptToPurchase(res);
-    })
+        promptToPurchase();
+    });
 }
 
+function promptToPurchase() {
+    inquirer.prompt(
+        {
+            type: "list",
+            message: "What would you like to do?",
+            choices: ["Make a Purchase", "Exit Bamazon"],
+            name: "userInput"
+        })
+        .then(function(answer) {
+            var command = answer.userInput;
+
+            switch(command) {
+                case "Make a Purchase":
+                    promptForId();
+                break;
+                
+                case "Exit Bamazon":
+                    connection.end();
+            }
+        })
+}
+
+function promptForId() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What is the item_id of the product you would like to purchase?",
+            name: "itemId"
+        },
+        {
+            type: "input",
+            message: "How many units of this product would you like to purchase?",
+            name: "itemNum"
+        }])
+        .then(function(answer) {
+            
+            connection.query("SELECT stock_quantity FROM products WHERE ?",
+            {
+                item_id: answer.itemId
+            },
+            function(err, res) {
+                if(err) throw err;
+                
+                else if(answer.itemNum > res[0].stock_quantity) {
+                    console.log("");
+                    console.log("-----------------------");
+                    console.log("Insufficient Quantity!");
+                    console.log("-----------------------");
+                    console.log("");
+        
+                    loadProducts();
+                }
+                
+                
+            })
+        })
+}
