@@ -11,6 +11,8 @@ var connection = mysql.createConnection({
     database: "bamazonDB"
 });
 
+var cost;
+
 // Call mysql connect method to establish connection with bamazon database
 connection.connect(err => {
     if(err) throw err;
@@ -69,7 +71,7 @@ function promptForItem() {
         }])
         .then(function(answer) {
             
-            connection.query("SELECT stock_quantity FROM products WHERE ?",
+            connection.query("SELECT stock_quantity, price FROM products WHERE ?",
             {
                 item_id: answer.itemId
             },
@@ -85,7 +87,8 @@ function promptForItem() {
         
                     loadProducts();
                 }
-
+                    cost = res[0].price * answer.itemNum;
+                    
                     connection.query("UPDATE products SET ? WHERE ?",
                     [{
                         stock_quantity: res[0].stock_quantity - answer.itemNum
@@ -97,9 +100,9 @@ function promptForItem() {
                         if(err) throw err;
                         
                         console.log("");
-                        console.log("-----------------------");
-                        console.log(res);
-                        console.log("-----------------------");
+                        console.log("----------------------------------------------------------------");
+                        console.log(`${res.affectedRows} purchase made! The total cost of your purchase was $${cost}.`);
+                        console.log("----------------------------------------------------------------");
                         console.log("");
 
                         loadProducts();
