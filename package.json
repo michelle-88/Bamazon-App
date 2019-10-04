@@ -1,0 +1,30 @@
+{
+  "name": "bamazon-app",
+  "version": "1.0.0",
+  "description": "A digital storefront built using Node.js and MySQL.",
+  "main": "bamazonCustomer.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michelle-88/Bamazon-App.git"
+  },
+  "keywords": [
+    "node.js",
+    "sql",
+    "mysql",
+    "database",
+    "javascript"
+  ],
+  "author": "Michelle Mesorana",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/michelle-88/Bamazon-App/issues"
+  },
+  "homepage": "https://github.com/michelle-88/Bamazon-App#readme",
+  "dependencies": {
+    "inquirer": "^7.0.0",
+    "mysql": "^2.17.1"
+  }
+}
