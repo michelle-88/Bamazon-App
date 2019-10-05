@@ -87,6 +87,56 @@ function showLowStock() {
     });
 }
 
+function addStock() {
+    connection.query("SELECT * FROM products", function(err, res) {
+        if(err) throw err;
+
+        inquirer.prompt([
+            {
+                type: "list",
+                message: "Which inventory item would you like to update?",
+                choices: function() {
+                    var itemArray = [];
+
+                    for(var i = 0; i < res.length; i++) {
+                        itemArray.push(res[i].product_name);
+                    }
+                    return itemArray;
+                },
+                name: "item"
+            },
+            {
+                type: "input",
+                message: "Please enter an updated stock quantity for this item.",
+                name: "itemNum"
+            }])
+            .then(function(answer) {
+                connection.query("UPDATE products SET ? WHERE ?",
+                [
+                    {
+                        stock_quantity: answer.itemNum
+                    },
+                    {
+                        product_name: answer.item
+                    }
+                ],
+                function(err, res){
+                    if(err) throw err;
+
+                    console.log("");
+                    console.log("----------------");
+                    console.log(`${res.affectedRows} item updated!`);
+                    console.log("----------------");
+                    console.log("");
+
+                    managerPrompts();                    
+                })
+            })
+       
+    })
+
+}
+
 // On connection, load inquirer prompt list of options for manager to choose from (change loadProducts above)
 // View Products for Sale - Display database to manager and then reload initial prompt menu
 // View Low Inventory - make SELECT query to datbase for all items where stock_quantity < 5
