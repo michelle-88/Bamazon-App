@@ -132,9 +132,53 @@ function addStock() {
                     managerPrompts();                    
                 })
             })
-       
     })
 
+}
+
+function addItem() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What new product would you like to add to the store?",
+            name: "itemName"
+        },
+        {
+            type: "input",
+            message: "What department should this product be added to?",
+            name: "itemDept"
+        },
+        {
+            type: "input",
+            message: "What is the price of this new product?",
+            name: "itemPrice"
+        },
+        {
+            type: "input",
+            message: "What is the stock quantity for this new product?",
+            name: "itemStock"
+        }
+    ])
+    .then(function(answer) {
+        connection.query("INSERT INTO products SET ?",
+        {
+            product_name: answer.itemName,
+            department_name: answer.itemDept,
+            price: answer.itemPrice,
+            stock_quantity: answer.itemStock
+        },
+        function(err) {
+            if(err) throw err;
+
+            console.log("");
+            console.log("----------------------------------------");
+            console.log("New product has been added successfully!");
+            console.log("----------------------------------------");
+            console.log("");
+
+            managerPrompts();            
+        })
+    })
 }
 
 // On connection, load inquirer prompt list of options for manager to choose from (change loadProducts above)
