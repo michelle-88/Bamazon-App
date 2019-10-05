@@ -114,7 +114,7 @@ function promptForItem() {
                     // Log below message with total cost after successfully updating the database
                     console.log("");
                     console.log("-------------------------------------------------------------");
-                    console.log(`${res.affectedRows} purchase made! The total cost of your purchase was $${cost}.`);
+                    console.log(`${res.affectedRows} purchase made! The total cost of your purchase was $${cost.toFixed(2)}.`);
                     console.log("-------------------------------------------------------------");
                     console.log("");
 
