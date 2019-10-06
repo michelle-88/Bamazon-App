@@ -88,7 +88,7 @@ function promptForItem() {
                 
                 // Compare user's desired quantity against available stock in database
                 // If user's request exceeds available stock, log message in console and call initial function to display products database
-                else if(answer.itemNum > res[0].stock_quantity) {
+                else if(parseInt(answer.itemNum) > res[0].stock_quantity) {
                     console.log("");
                     console.log("-----------------------");
                     console.log("Insufficient Quantity!");
@@ -97,30 +97,33 @@ function promptForItem() {
         
                     loadProducts();
                 }
-                // Calculate cost of user's purchase by multiplying item price by desired quantity
-                cost = res[0].price * answer.itemNum;
-                
-                // Make UPDATE query to database to subtract necessary amount from stock_quantity
-                connection.query("UPDATE products SET ? WHERE ?",
-                [{
-                    stock_quantity: res[0].stock_quantity - answer.itemNum
-                },
-                {
-                    item_id: answer.itemId
-                }],
-                function(err, res) {
-                    if(err) throw err;
-                    
-                    // Log below message with total cost after successfully updating the database
-                    console.log("");
-                    console.log("-------------------------------------------------------------");
-                    console.log(`${res.affectedRows} purchase made! The total cost of your purchase was $${cost.toFixed(2)}.`);
-                    console.log("-------------------------------------------------------------");
-                    console.log("");
 
-                    // Call function to display all items in database again
-                    loadProducts();
-                })                
+                else {
+                    // Calculate cost of user's purchase by multiplying item price by desired quantity
+                    cost = res[0].price * parseInt(answer.itemNum);
+                    
+                    // Make UPDATE query to database to subtract necessary amount from stock_quantity
+                    connection.query("UPDATE products SET ? WHERE ?",
+                    [{
+                        stock_quantity: res[0].stock_quantity - parseInt(answer.itemNum)
+                    },
+                    {
+                        item_id: answer.itemId
+                    }],
+                    function(err, res) {
+                        if(err) throw err;
+                        
+                        // Log below message with total cost after successfully updating the database
+                        console.log("");
+                        console.log("-------------------------------------------------------------");
+                        console.log(`${res.affectedRows} purchase made! The total cost of your purchase was $${cost.toFixed(2)}.`);
+                        console.log("-------------------------------------------------------------");
+                        console.log("");
+
+                        // Call function to display all items in database again
+                        loadProducts();
+                    })                
+                }
                 
             })
         })

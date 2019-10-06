@@ -130,7 +130,7 @@ function addStock() {
                 connection.query("UPDATE products SET ? WHERE ?",
                 [
                     {
-                        stock_quantity: answer.itemNum
+                        stock_quantity: parseInt(answer.itemNum)
                     },
                     {
                         product_name: answer.item
