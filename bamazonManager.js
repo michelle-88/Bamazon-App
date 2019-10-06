@@ -194,8 +194,8 @@ function addItem() {
         {
             product_name: answer.itemName,
             department_name: answer.itemDept,
-            price: answer.itemPrice,
-            stock_quantity: answer.itemStock
+            price: parseFloat(answer.itemPrice),
+            stock_quantity: parseInt(answer.itemStock)
         },
         function(err) {
             if(err) throw err;
