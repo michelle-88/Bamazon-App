@@ -20,6 +20,6 @@ The following languages, Node packages, and tools were used to build this applic
 - DBeaver
 
 ### App Demonstration Videos
-Click on the following link to see a demonstration of the 'Customer' view: [Customer Video]()
+Click on the following link to see a demonstration of the 'Customer' view: [Customer Video](https://drive.google.com/file/d/1SC_5Ox05FO2Ys9Yp3wlDdbr6WD5uEw9s/view)
 
 Click on the following link to see a demonstration of the 'Manager' view: [Manager Video]()
