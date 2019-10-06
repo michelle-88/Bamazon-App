@@ -20,6 +20,7 @@ connection.connect(err => {
     managerPrompts();
 });
 
+// Function that uses inquirer prompt to display menu of options to user
 function managerPrompts() {
     inquirer.prompt(
         {
@@ -31,6 +32,7 @@ function managerPrompts() {
         .then(function(answer) {
             var command = answer.action;
 
+            // Switch that determines which function to call based on user's selected menu option
             switch(command) {
                 case "View Products for Sale":
                     loadItems();
@@ -54,6 +56,7 @@ function managerPrompts() {
         });
 }
 
+// Function that displays entire database table to user and then reloads initial prompt menu
 function loadItems() {
     // Query database to return all entries
     connection.query("SELECT * FROM products", function(err, res) {
@@ -62,11 +65,12 @@ function loadItems() {
         // Display all items in console
         console.table(res);
 
-        // Call function to prompt user to purchase an item
+        // Call function to display menu prompts again
         managerPrompts();
     });
 }
 
+// Function that displays the database items that have a low stock quantity
 function showLowStock() {
     // Query database for all items with a stock_quantity less than 5
     connection.query("SELECT * FROM products HAVING stock_quantity < 5",
@@ -82,19 +86,24 @@ function showLowStock() {
         // Display low quantity items in console
         console.table(res);
 
-        // Prompt manager to make a choice from main menu again
+        // Call function to display menu prompts again
         managerPrompts();
     });
 }
 
+// Function that will allow user to select an item from the database and modify its stock quantity
 function addStock() {
+    // Query database for all items in products table
     connection.query("SELECT * FROM products", function(err, res) {
         if(err) throw err;
 
+        // Prompt user to select a database item from list and input an updated stock quantity
         inquirer.prompt([
             {
                 type: "list",
                 message: "Which inventory item would you like to update?",
+                // Choices array is a function that loops through the response from the database query and pushes each product name into a new array
+                // This new 'itemArray' is then returned and displayed to the user in inquirer prompt
                 choices: function() {
                     var itemArray = [];
 
@@ -108,9 +117,16 @@ function addStock() {
             {
                 type: "input",
                 message: "Please enter an updated stock quantity for this item.",
-                name: "itemNum"
+                name: "itemNum",
+                validate: function(value) {
+                    if(isNaN(value) === false) {
+                        return true;
+                    }
+                    return false;
+                }
             }])
             .then(function(answer) {
+                // Use the product name and new stock quantity data submitted by user to update the database
                 connection.query("UPDATE products SET ? WHERE ?",
                 [
                     {
@@ -122,20 +138,21 @@ function addStock() {
                 ],
                 function(err, res){
                     if(err) throw err;
-
+                    // Display below message to user when database has been updated successfully
                     console.log("");
                     console.log("----------------");
                     console.log(`${res.affectedRows} item updated!`);
                     console.log("----------------");
                     console.log("");
 
+                    // Call function to display menu prompts again
                     managerPrompts();                    
                 })
             })
     })
-
 }
 
+// Function that displays inquirer input prompts to collect data from user about new product to be added to database
 function addItem() {
     inquirer.prompt([
         {
@@ -151,15 +168,28 @@ function addItem() {
         {
             type: "input",
             message: "What is the price of this new product?",
-            name: "itemPrice"
+            name: "itemPrice",
+            validate: function(value) {
+                if(isNaN(value) === false) {
+                    return true;
+                }
+                return false;
+            }
         },
         {
             type: "input",
             message: "What is the stock quantity for this new product?",
-            name: "itemStock"
+            name: "itemStock",
+            validate: function(value) {
+                if(isNaN(value) === false) {
+                    return true;
+                }
+                return false;
+            }
         }
     ])
     .then(function(answer) {
+        // Use input data from user to add a new item to products table in database
         connection.query("INSERT INTO products SET ?",
         {
             product_name: answer.itemName,
@@ -170,20 +200,15 @@ function addItem() {
         function(err) {
             if(err) throw err;
 
+            // Display below message to user when new item is successfully added
             console.log("");
             console.log("----------------------------------------");
             console.log("New product has been added successfully!");
             console.log("----------------------------------------");
             console.log("");
 
+            // Call function to display menu prompts again
             managerPrompts();            
         })
     })
 }
-
-// On connection, load inquirer prompt list of options for manager to choose from (change loadProducts above)
-// View Products for Sale - Display database to manager and then reload initial prompt menu
-// View Low Inventory - make SELECT query to datbase for all items where stock_quantity < 5
-// Add to Inventory - load new inquirer prompt to generate list of database items for manager to select from and then prompt for an amount to add to stock_quantity
-    // then make UPDATE query to specified item in database
-// Add New Product - load new inquirer prompt that asks for inputs for each item to be added to DB and then do INSERT INTO query to database
